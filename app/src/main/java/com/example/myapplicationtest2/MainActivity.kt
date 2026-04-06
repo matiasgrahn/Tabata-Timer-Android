@@ -28,6 +28,10 @@ import androidx.compose.animation.core.tween
 import androidx.compose.ui.platform.LocalContext
 import kotlin.random.Random
 
+/**
+ * Datan mallinnus konfettihiukkaselle.
+ * Käytetään Canvas-animaatiossa luomaan visuaalinen palkinto treenin loppuun.
+ */
 data class ConfettiPiece(
     var x: Float,
     var y: Float,
@@ -35,10 +39,11 @@ data class ConfettiPiece(
     var speed: Float,
     var rotation: Float
 )
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
+        enableEdgeToEdge() // Mahdollistaa UI:n levittäytymisen koko näytölle
         setContent {
             // Tässä kutsutaan pääsovellusta
             Surface(modifier = Modifier.fillMaxSize()) {
@@ -61,27 +66,28 @@ fun MatiasTabataApp() {
     var motivationText by remember { mutableStateOf("") }
     val motivations = listOf("DON'T GIVE UP!", "KEEP GOING!", "PUSH IT!", "ALMOST THERE!", "STAY STRONG!")
 
+    // Ääniefektit: ToneGenerator luo klassiset piippaukset ilman erillisiä äänitiedostoja
     val toneGenerator = remember { ToneGenerator(AudioManager.STREAM_NOTIFICATION, 100) }
-    // 1. Varmista alustus (lisää .apply { isLooping = true })
+
+    // Taustamusiikki: Käytetään MediaPlayeria kustomoidun treenimusiikin soittamiseen
     val context = LocalContext.current
     val bgMusic = remember {
         MediaPlayer.create(context, R.raw.final_final_treenimusa).apply {
-            isLooping = true
-            setVolume(1.0f, 1.0f) // Laita täysille testin ajaksi!
+            isLooping = true // Muusiikki luuppaa automaattisesti
+            setVolume(1.0f, 1.0f) // Äänenvoimakkuus (DEFAULT)
         }
     }
+    // --- LOGIIKKA JA SIVUVAIKUTUKSET ---
 
-// 2. Tehostettu käynnistyslogiikka
+    // Musiikin käynnistys hallitusti
     LaunchedEffect(isRunning) {
         if (isRunning) {
             // Kun painat START, musa alkaa
             bgMusic.start()
         }
-        // POISTETTU: else { bgMusic.pause() }
-        // Näin musa jatkuu, vaikka isRunning muuttuisi falseksi (treeni loppuu)
     }
 
-// 3. Pysäytetään musiikki VASTA kun poistutaan näkymästä tai painetaan menunappia
+    // 3. Pysäytetään musiikki VASTA kun poistutaan näkymästä tai painetaan menunappia
     DisposableEffect(Unit) {
         onDispose {
             bgMusic.stop()
@@ -95,8 +101,10 @@ fun MatiasTabataApp() {
         "WORK" -> 20f
         else -> 10f
     }
+    // Animaatio tekee palkin liikkumisesta sulavaa
     val progress by animateFloatAsState(targetValue = secondsLeft / totalTimeInPhase)
 
+    // AJASTIMEN PÄÄLOGIIKKA: AI-avusteisesti optimoitu loop
     LaunchedEffect(isRunning, secondsLeft) {
         if (isRunning && !isFinished) {
             if (secondsLeft > 0) {
@@ -110,6 +118,7 @@ fun MatiasTabataApp() {
             } else {
                 toneGenerator.startTone(ToneGenerator.TONE_PROP_ACK, 300)
 
+                // VAIHEEN VAIHTO
                 when (phase) {
                     "PREP" -> {
                         phase = "WORK"
@@ -117,7 +126,7 @@ fun MatiasTabataApp() {
                     }
                     "WORK" -> {
                         if (round == 8) {
-                            isFinished = true
+                            isFinished = true // Treeni suoritettu !
                             isRunning = false
                         } else {
                             phase = "REST"
@@ -137,7 +146,9 @@ fun MatiasTabataApp() {
         }
     }
 
-    // TAUSTAVÄRI
+    // --- KÄYTTÖLIITTYMÄ (UI) ---
+
+    // TAUSTAVÄRIT
     val backgroundColor by animateColorAsState(
         targetValue = when {
             isFinished -> Color(0xFF4527A0)
@@ -152,13 +163,14 @@ fun MatiasTabataApp() {
         modifier = Modifier.fillMaxSize().background(backgroundColor).padding(WindowInsets.systemBars.asPaddingValues()),
         contentAlignment = Alignment.Center
     ) {
+        // Konfetti-efekti: Renderöidään vain kun treeni on valmis
         ConfettiRain(visible = isFinished)
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier.fillMaxHeight().padding(vertical = 50.dp)
         ) {
-            // YLÄOSA
+            // YLÄOSA: Otsikot
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 if (isFinished) {
                     Text("FINISHED", fontSize = 60.sp, color = Color.White, fontWeight = FontWeight.Black, modifier = Modifier.padding(vertical = 110.dp))
@@ -245,7 +257,7 @@ fun MatiasTabataApp() {
                 }
 
                 else {
-                    // ALOITA / PAUSE
+                    // Start / Pause - nappi
                     Button(
                         onClick = { isRunning = !isRunning },
                         modifier = Modifier.fillMaxWidth().height(90.dp),
@@ -298,12 +310,16 @@ fun MatiasTabataApp() {
     }
 
 }
+/**
+ * Konfettianimaatio: Käyttää Compose Canvasia piirtämään 100 yksittäistä "paperisuikaletta".
+ * Animaatio on toteutettu tekoälyn avustuksella laskemaan putoamisnopeudet ja rotaatiot tehokkaasti.
+ */
 @Composable
 fun ConfettiRain(visible: Boolean) {
     if (!visible) return
 
     val pieces = remember {
-        List(100) { // 70 suikaletta on sopiva määrä
+        List(100) { // 100 suikaletta ennen kuin animaatio alkaa alusta
             ConfettiPiece(
                 x = Random.nextFloat() * 1500f,
                 y = -(Random.nextFloat() * 2000f),
@@ -319,19 +335,18 @@ fun ConfettiRain(visible: Boolean) {
         initialValue = 0f,
         targetValue = 3000f,
         animationSpec = infiniteRepeatable(
-            animation = tween(10000, easing = LinearEasing)
+            animation = tween(10000, easing = LinearEasing)  // Muuttamalla Tween arvoa. Isompi = Hitaampi putoaminen ja vice versa.
         ), label = "drop"
     )
 
     androidx.compose.foundation.Canvas(modifier = Modifier.fillMaxSize()) {
         pieces.forEach { piece ->
             val currentY = (piece.y + elapsed * piece.speed / 5) % size.height
-            // Piirretään pieniä suorakaiteita (paperisuikaleita)
             drawRect(
                 color = piece.color,
                 topLeft = androidx.compose.ui.geometry.Offset(piece.x % size.width, currentY),
-                size = androidx.compose.ui.geometry.Size(25f, 12f),
-                alpha = if (currentY > size.height - 100) 0f else 1f
+                size = androidx.compose.ui.geometry.Size(25f, 12f), // Paperisuikaleen koko
+                alpha = if (currentY > size.height - 100) 0f else 1f // Häivytys alareunassa
             )
         }
     }
