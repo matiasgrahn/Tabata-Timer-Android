@@ -69,7 +69,7 @@ fun MatiasTabataApp() {
     var motivationText by remember { mutableStateOf("") }
     val motivations = listOf("DON'T GIVE UP!", "KEEP GOING!", "PUSH IT!", "ALMOST THERE!", "STAY STRONG!")
 
-    val toneGenerator = remember { ToneGenerator(AudioManager.STREAM_NOTIFICATION, 100) }
+    val toneGenerator = remember { ToneGenerator(AudioManager.STREAM_NOTIFICATION, 60) }
     val context = LocalContext.current
     val bgMusic = remember {
         MediaPlayer.create(context, R.raw.final_final_treenimusa).apply {
