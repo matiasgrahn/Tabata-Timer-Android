@@ -142,7 +142,7 @@ fun MatiasTabataApp() {
     val backgroundColor by animateColorAsState(
         targetValue = when {
             isFinished -> Color(0xFF4527A0)
-            phase == "PREP" -> Color(0xFFFBC02D)
+            phase == "PREP" -> Color(0xFF5D5B5B)
             phase == "WORK" -> Color(0xFF2E7D32)
             else -> Color(0xFFC62828)
         }
