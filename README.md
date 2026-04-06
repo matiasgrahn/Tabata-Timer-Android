@@ -5,6 +5,15 @@ Kehitin sovelluksen omaan käyttööni tarpeesta saada kustomoitu ja
 visuaalisesti miellyttävä treeniajastin hyvällä klassisella muusikilla. Projektin toteutuksessa on hyödynnetty tekoälyavusteista
 ohjelmointia logiikan optimoinnissa ja ongelmanratkaisussa.
 
+## ✨ Näyttökuvat sovelluksesta
+<p align="center">
+  <img src="screenshots/menu-ruutu.jpg" width="30%" />
+  <img src="screenshots/getready-ruutu.jpg" width="30%" />
+  <img src="screenshots/work-ruutu.jpg" width="30%" />
+  <img src="screenshots/rest-ruutu.jpg" width="30%" />
+  <img src="screenshots/finished-ruutu.jpg" width="30%" />
+</p>
+
 ## ✨ Ominaisuudet
 
 - **Reaktiivinen UI:** Toteutettu kokonaan Jetpack Composella.

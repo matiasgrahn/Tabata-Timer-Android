@@ -286,10 +286,10 @@ fun MatiasTabataApp() {
 
                     // Se kuuluisa Debug-nappi (Poista tämä kun olet kokeillut DONE-napin toimivuuden!)
 
-                Spacer(modifier = Modifier.height(8.dp))
-                 TextButton(onClick = { secondsLeft = 1; round = 8; phase = "WORK" }) {
-                    Text("Debug: Skip to End", color = Color.White.copy(alpha = 0.2f))
-                  }
+//                Spacer(modifier = Modifier.height(8.dp))
+//                 TextButton(onClick = { secondsLeft = 1; round = 8; phase = "WORK" }) {
+//                    Text("Debug: Skip to End", color = Color.White.copy(alpha = 0.2f))
+//                  }
 
                 }
 
